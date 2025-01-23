@@ -1,0 +1,107 @@
+*
+{
+    margin: 0;
+    padding: 0;
+}
+
+html
+{
+    background: #1e1a20;
+    scroll-behavior: smooth;
+}
+
+.webgl
+{
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+.section
+{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Cabin', sans-serif;
+    color: #ffeded;
+    text-transform: uppercase;
+    font-size: 7vmin;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    padding: 0 5%;
+}
+
+.additional-text
+{
+    font-size: 2.5vmin;
+    color: #ffeded;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    margin-top: 10px;
+}
+
+.section-button
+{
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: #5d52ff;
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    text-transform: uppercase;
+    font-size: 2vmin;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.section-button:hover
+{
+    background-color: #4a42cc;
+}
+
+.scroll-hint
+{
+    position: absolute;
+    bottom: 30px;
+    width: 100%;
+    text-align: center;
+    font-size: 2.5vmin;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.scroll-hint span
+{
+    font-size: 3.5vmin;
+    animation: bounce 1s infinite;
+    display: block;
+}
+
+.scroll-hint.second {
+    bottom: -100%;
+}
+
+@keyframes bounce
+{
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(10px); }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .additional-text {
+        font-size: 3vmin;
+    }
+
+    .scroll-hint {
+        font-size: 3vmin;
+    }
+
+    .scroll-hint span {
+        font-size: 4.5vmin;
+    }
+}
