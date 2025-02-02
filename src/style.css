@@ -1,107 +1,67 @@
-*
-{
+/* General Styles */
+body, html {
     margin: 0;
     padding: 0;
-}
-
-html
-{
+    overflow: hidden; /* Prevents scrolling */
     background: #1e1a20;
-    scroll-behavior: smooth;
-}
-
-.webgl
-{
-    position: fixed;
-    top: 0;
-    left: 0;
-}
-
-.section
-{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
     font-family: 'Cabin', sans-serif;
     color: #ffeded;
-    text-transform: uppercase;
-    font-size: 7vmin;
-    position: relative;
-    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
     text-align: center;
-    padding: 0 5%;
 }
 
-.additional-text
-{
-    font-size: 2.5vmin;
-    color: #ffeded;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+/* Category Text */
+.categories {
+    position: absolute;
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+/* Category Section */
+.category {
+    position: relative;
+    font-size: 1.8em;
+    font-weight: bold;
+}
+
+/* Button */
+.category-button {
+    display: inline-block;
     margin-top: 10px;
-}
-
-.section-button
-{
-    margin-top: 15px;
-    padding: 10px 20px;
+    padding: 8px 16px;
     background-color: #5d52ff;
     color: #fff;
-    border: none;
-    border-radius: 25px;
-    text-transform: uppercase;
-    font-size: 2vmin;
-    cursor: pointer;
+    border-radius: 20px;
     text-decoration: none;
-    transition: background-color 0.3s;
+    font-size: 0.9em;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
-.section-button:hover
-{
+.category-button:hover {
     background-color: #4a42cc;
+    transform: scale(1.05);
 }
 
-.scroll-hint
-{
-    position: absolute;
-    bottom: 30px;
-    width: 100%;
-    text-align: center;
-    font-size: 2.5vmin;
-    color: rgba(255, 255, 255, 0.7);
-}
-
-.scroll-hint span
-{
-    font-size: 3.5vmin;
-    animation: bounce 1s infinite;
-    display: block;
-}
-
-.scroll-hint.second {
-    bottom: -100%;
-}
-
-@keyframes bounce
-{
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(10px); }
-}
-
-/* Responsive Adjustments */
+/* Mobile Adjustments */
 @media (max-width: 768px) {
-    .additional-text {
-        font-size: 3vmin;
+    .categories {
+        flex-direction: column;
+        justify-content: center;
+        gap: 40px;
     }
 
-    .scroll-hint {
-        font-size: 3vmin;
+    .category {
+        font-size: 1.4em;
     }
 
-    .scroll-hint span {
-        font-size: 4.5vmin;
+    .category-button {
+        font-size: 0.8em;
+        padding: 6px 14px;
     }
 }

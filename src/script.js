@@ -1,15 +1,15 @@
 import * as THREE from 'three';
-import gsap from 'gsap';
 
 /**
  * Parameters
  */
 const parameters = {
     materialColor: '#5d52ff',
+    movementIntensity: 0.1, // Reduced intensity for smoothness
 };
 
 /**
- * Base
+ * Base Setup
  */
 const canvas = document.querySelector('canvas.webgl');
 const scene = new THREE.Scene();
@@ -29,12 +29,10 @@ scene.add(directionalLight);
  */
 const particlesCount = 1000;
 const positions = new Float32Array(particlesCount * 3);
-const sectionHeight = 10;
-const totalHeight = sectionHeight * document.querySelectorAll('.section').length;
 
 for (let i = 0; i < particlesCount; i++) {
     positions[i * 3 + 0] = (Math.random() - 0.5) * 10;
-    positions[i * 3 + 1] = Math.random() * totalHeight - totalHeight / 2;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 10;
     positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
 }
 
@@ -51,33 +49,37 @@ const particles = new THREE.Points(particlesGeometry, particlesMaterial);
 scene.add(particles);
 
 /**
- * Sizes
+ * Sizes & Responsive Adjustments
  */
 const sizes = {
     width: window.innerWidth,
     height: window.innerHeight,
 };
 
+/**
+ * Camera - Adjust FOV for Mobile
+ */
+const isMobile = sizes.width < 768;
+const camera = new THREE.PerspectiveCamera(isMobile ? 45 : 35, sizes.width / sizes.height, 0.1, 100);
+camera.position.z = 6;
+scene.add(camera);
+
 window.addEventListener('resize', () => {
     sizes.width = window.innerWidth;
     sizes.height = window.innerHeight;
 
+    // Adjust Camera FOV for Mobile
+    const isMobile = sizes.width < 768;
+    camera.fov = isMobile ? 45 : 35;
     camera.aspect = sizes.width / sizes.height;
     camera.updateProjectionMatrix();
 
     renderer.setSize(sizes.width, sizes.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // Adjust Cube Positions Dynamically
+    adjustCubePositions();
 });
-
-/**
- * Camera
- */
-const cameraGroup = new THREE.Group();
-scene.add(cameraGroup);
-
-const camera = new THREE.PerspectiveCamera(35, sizes.width / sizes.height, 0.1, 100);
-camera.position.z = 6;
-cameraGroup.add(camera);
 
 /**
  * Renderer
@@ -90,93 +92,60 @@ renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 /**
- * Scroll Animation
+ * Floating Cubes with Unique Textures
  */
-const sections = document.querySelectorAll('.section');
 const textureLoader = new THREE.TextureLoader();
 
-sections.forEach((section, index) => {
-    // Additional Text
-    const additionalText = document.createElement('p');
-    additionalText.classList.add('additional-text');
-    additionalText.textContent = section.dataset.additionalText;
-    section.appendChild(additionalText);
-
-    // Button with Separate Links
-    const button = document.createElement('a');
-    button.classList.add('section-button');
-    button.href =
-        index === 0
-            ? 'https://www.youtube.com/@AlexDubranov'
-            : index === 1
-            ? 'https://forms.gle/ALEkM4yanYg5Rj598'
-            : 'https://ko-fi.com/alexdubranov';
-    button.textContent = 'Explore';
-    section.appendChild(button);
-
-    // Rotating Cube
+const createCube = (index) => {
     const cubeGeometry = new THREE.BoxGeometry(0.9, 0.9, 0.9);
     const faceImages = [
-        `textures/section${index + 1}_face1.webp`,
-        `textures/section${index + 1}_face2.webp`,
-        `textures/section${index + 1}_face3.webp`,
-        `textures/section${index + 1}_face4.webp`,
-        `textures/section${index + 1}_face5.webp`,
-        `textures/section${index + 1}_face6.webp`,
+        `textures/section${index + 1}_face1.webp`, 
+        `textures/section${index + 1}_face2.webp`, 
+        `textures/section${index + 1}_face3.webp`, 
+        `textures/section${index + 1}_face4.webp`, 
+        `textures/section${index + 1}_face5.webp`, 
+        `textures/section${index + 1}_face6.webp`
     ];
-      // Apply SRGB color space to each texture
-      const cubeMaterials = faceImages.map((img) => {
+    
+    const cubeMaterials = faceImages.map((img) => {
         const texture = textureLoader.load(img);
         texture.colorSpace = THREE.SRGBColorSpace;
-        return new THREE.MeshStandardMaterial({
-            map: texture,
-        });
+        return new THREE.MeshStandardMaterial({ map: texture });
     });
 
     const cube = new THREE.Mesh(cubeGeometry, cubeMaterials);
-    cube.position.y = -index * (sectionHeight * 0.4) + 1.5; // Adjusted y-position for each cube
-    cube.position.z = -2;
     scene.add(cube);
 
-    // Animation for the Cube
-    const rotateCube = () => {
-        cube.rotation.y += 0.01;
-        cube.rotation.z += 0.005;
-        requestAnimationFrame(rotateCube);
-    };
-    rotateCube();
-});
+    return cube;
+};
 
-window.addEventListener('scroll', () => {
-    const scrollY = window.scrollY;
-
-    sections.forEach((section, index) => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.offsetHeight;
-        if (scrollY > sectionTop - sectionHeight / 2 && scrollY < sectionTop + sectionHeight / 2) {
-            gsap.to(section.querySelector('.additional-text'), {
-                opacity: 1,
-                y: 0,
-                duration: 0.5,
-            });
-        } else {
-            gsap.to(section.querySelector('.additional-text'), {
-                opacity: 0,
-                y: 10,
-                duration: 0.5,
-            });
-        }
-    });
-});
+const leftCube = createCube(0);
+const rightCube = createCube(1);
 
 /**
- * Cursor
+ * Adjust Cube Positions Dynamically
+ */
+const adjustCubePositions = () => {
+    const isMobile = sizes.width < 768;
+    
+    if (isMobile) {
+        leftCube.position.set(0, 2, -2);  // Above first category
+        rightCube.position.set(0, -2, -2); // Below second category
+    } else {
+        leftCube.position.set(-2, 1.5, -2);
+        rightCube.position.set(2, 1.5, -2);
+    }
+};
+
+adjustCubePositions(); // Run on load
+
+/**
+ * Cursor Movement Effect - Reduced Sensitivity
  */
 const cursor = { x: 0, y: 0 };
-
 window.addEventListener('mousemove', (event) => {
-    cursor.x = event.clientX / sizes.width - 0.5;
-    cursor.y = event.clientY / sizes.height - 0.5;
+    cursor.x = (event.clientX / sizes.width - 0.8) * parameters.movementIntensity;
+    cursor.y = -(event.clientY / sizes.height - 0.8) * parameters.movementIntensity;
 });
 
 /**
@@ -186,18 +155,21 @@ const clock = new THREE.Clock();
 const tick = () => {
     const elapsedTime = clock.getElapsedTime();
 
+    // Animate cubes
+    leftCube.rotation.y += 0.01;
+    rightCube.rotation.y += 0.01;
+
+    leftCube.rotation.z += 0.005;
+    rightCube.rotation.z += 0.005;
+
     // Animate particles
     particles.rotation.y = elapsedTime * 0.1;
 
-    // Parallax effect
-    const parallaxX = cursor.x * 0.5;
-    const parallaxY = -cursor.y * 0.5;
-    cameraGroup.position.x += (parallaxX - cameraGroup.position.x) * 0.1;
-    cameraGroup.position.y += (parallaxY - cameraGroup.position.y) * 0.1;
+    // Mouse Interaction
+    camera.position.x += (cursor.x - camera.position.x) * 0.05;
+    camera.position.y += (cursor.y - camera.position.y) * 0.05;
 
-    // Scroll effect
-    camera.position.y = -window.scrollY / sizes.height * 4;
-
+    // Render
     renderer.render(scene, camera);
     window.requestAnimationFrame(tick);
 };
